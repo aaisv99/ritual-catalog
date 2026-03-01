@@ -610,19 +610,19 @@ document.getElementById('sub-form').addEventListener('submit', async function(e)
 
 async function loadCategories() {
   var tbody = document.getElementById('categories-tbody');
-  tbody.innerHTML = '<tr><td colspan="5" class="loading">Загрузка...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">Загрузка...</td></tr>';
 
   try {
     var res = await apiFetch('/admin/api/categories');
     if (!res || !res.ok) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Ошибка загрузки</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">Ошибка загрузки</td></tr>';
       return;
     }
     var data = await res.json();
     allCategories = data;
 
     if (data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Категории не найдены</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">Категории не найдены</td></tr>';
       return;
     }
 
@@ -633,12 +633,107 @@ async function loadCategories() {
         '<td><code>' + escapeHtml(c.slug) + '</code></td>' +
         '<td>' + escapeHtml(c.description || '—') + '</td>' +
         '<td>' + c.order_idx + '</td>' +
+        '<td><div class="admin-table__actions">' +
+          '<button class="btn btn--outline btn--xs" onclick="editCategory(\'' + escapeHtml(c.id) + '\')">Ред.</button>' +
+          '<button class="btn btn--danger btn--xs" onclick="deleteCategory(\'' + escapeHtml(c.id) + '\', \'' + escapeHtml(c.name) + '\')">Удал.</button>' +
+        '</div></td>' +
       '</tr>';
     }).join('');
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Ошибка: ' + escapeHtml(e.message) + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">Ошибка: ' + escapeHtml(e.message) + '</td></tr>';
   }
 }
+
+document.getElementById('add-cat-btn').addEventListener('click', function() {
+  openCatModal(null);
+});
+
+function openCatModal(cat) {
+  document.getElementById('cf-id').value = '';
+  document.getElementById('cf-id-field').value = '';
+  document.getElementById('cf-name').value = '';
+  document.getElementById('cf-slug').value = '';
+  document.getElementById('cf-description').value = '';
+  document.getElementById('cf-order').value = '0';
+  document.getElementById('cat-modal-alert').innerHTML = '';
+
+  var idField = document.getElementById('cf-id-field');
+
+  if (cat) {
+    document.getElementById('cat-modal-title').textContent = 'Редактировать категорию';
+    document.getElementById('cf-id').value = cat.id;
+    idField.value = cat.id;
+    idField.disabled = true; // ID нельзя менять после создания
+    document.getElementById('cf-name').value = cat.name || '';
+    document.getElementById('cf-slug').value = cat.slug || '';
+    document.getElementById('cf-description').value = cat.description || '';
+    document.getElementById('cf-order').value = cat.order_idx || 0;
+  } else {
+    document.getElementById('cat-modal-title').textContent = 'Добавить категорию';
+    idField.disabled = false;
+  }
+
+  openModal('cat-modal');
+}
+
+function editCategory(id) {
+  var cat = allCategories.find(function(c) { return c.id === id; });
+  if (cat) openCatModal(cat);
+}
+
+async function deleteCategory(id, name) {
+  if (!confirm('Удалить категорию "' + name + '"?\nВсе подразделы и товары в ней тоже будут удалены!')) return;
+  try {
+    var res = await apiFetch('/admin/api/categories/' + id, { method: 'DELETE' });
+    if (res && res.ok) {
+      showAlert('categories-alert', 'Категория удалена', 'success');
+      loadCategories();
+    } else {
+      var data = await res.json();
+      showAlert('categories-alert', data.error || 'Ошибка удаления', 'error');
+    }
+  } catch(e) {
+    showAlert('categories-alert', e.message, 'error');
+  }
+}
+
+document.getElementById('cat-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('cat-form-submit');
+  btn.disabled = true;
+  btn.textContent = 'Сохраняем...';
+  document.getElementById('cat-modal-alert').innerHTML = '';
+
+  var existingId = document.getElementById('cf-id').value;
+  var body = {
+    id:          document.getElementById('cf-id-field').value.trim(),
+    name:        document.getElementById('cf-name').value.trim(),
+    slug:        document.getElementById('cf-slug').value.trim(),
+    description: document.getElementById('cf-description').value.trim(),
+    order_idx:   parseInt(document.getElementById('cf-order').value) || 0,
+  };
+
+  try {
+    var url    = existingId ? '/admin/api/categories/' + existingId : '/admin/api/categories';
+    var method = existingId ? 'PUT' : 'POST';
+    var res    = await apiFetch(url, { method: method, body: JSON.stringify(body) });
+    var data   = await res.json();
+    if (res.ok) {
+      closeModal('cat-modal');
+      showAlert('categories-alert', 'Категория сохранена', 'success');
+      loadCategories();
+    } else {
+      document.getElementById('cat-modal-alert').innerHTML =
+        '<div class="admin-alert admin-alert--error">' + escapeHtml(data.error || 'Ошибка') + '</div>';
+    }
+  } catch(err) {
+    document.getElementById('cat-modal-alert').innerHTML =
+      '<div class="admin-alert admin-alert--error">' + escapeHtml(err.message) + '</div>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Сохранить';
+});
 
 // ──────────────────────────────────────────────────────────
 // ТЕКСТЫ САЙТА
