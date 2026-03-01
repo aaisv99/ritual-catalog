@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <%- include('_head') %>
+</head>
+<body>
+
+  <%- include('_header') %>
+
+  <main class="order-info-page">
+    <div class="container">
+
+      <div class="page-header">
+        <p class="page-header__eyebrow">Информация</p>
+        <h1 class="page-header__title"><%= content['order.title'] || 'Условия заказа' %></h1>
+      </div>
+
+      <div class="order-info__content">
+
+        <!-- О каталоге -->
+        <div class="order-info__section">
+          <h2 class="order-info__section-title">О каталоге</h2>
+          <ul class="order-info__list">
+            <li>Каталог носит исключительно ознакомительный характер.</li>
+            <li>Представленные фотографии и описания — образцы, фактический вид может отличаться.</li>
+            <li>Цены в каталоге являются ориентировочными и могут меняться.</li>
+            <li>Для получения точной информации свяжитесь с нами по телефону или в Telegram.</li>
+          </ul>
+        </div>
+
+        <!-- Наличие и сроки -->
+        <div class="order-info__section">
+          <h2 class="order-info__section-title">Наличие и сроки</h2>
+          <ul class="order-info__list">
+            <li>Наличие товара уточняется на момент обращения.</li>
+            <li>Сроки изготовления зависят от сложности и загруженности — уточняйте при заказе.</li>
+            <li>Возможно изготовление изделий по индивидуальным пожеланиям.</li>
+            <li>Срочные заказы принимаются при наличии возможности — уточняйте заранее.</li>
+          </ul>
+        </div>
+
+        <!-- Доставка -->
+        <div class="order-info__section">
+          <h2 class="order-info__section-title">Доставка</h2>
+          <ul class="order-info__list">
+            <li>Условия доставки уточняются при оформлении заказа.</li>
+            <li>Возможен самовывоз — уточните адрес по телефону.</li>
+            <li>Возможна доставка по городу и за его пределами — условия оговариваются отдельно.</li>
+          </ul>
+        </div>
+
+        <!-- Индивидуальные пожелания -->
+        <div class="order-info__section">
+          <h2 class="order-info__section-title">Индивидуальные пожелания</h2>
+          <ul class="order-info__list">
+            <li>Принимаем заказы на нестандартные размеры и формы.</li>
+            <li>Возможен подбор цветов и материалов по вашему выбору.</li>
+            <li>Возможно добавление лент, надписей и других элементов.</li>
+            <li>Все нюансы обсуждаются индивидуально.</li>
+          </ul>
+        </div>
+
+        <!-- Контакты -->
+        <div class="order-info__section">
+          <h2 class="order-info__section-title">Связаться с нами</h2>
+          <p style="font-size: 0.9375rem; color: var(--color-text-secondary); margin-bottom: 16px;">
+            Все вопросы по заказу, цене, наличию и срокам — по телефону или в Telegram.
+          </p>
+          <div class="order-info__contact-links">
+            <a href="<%= content['contacts.phoneHref'] || 'tel:+70000000000' %>" class="contact-link">
+              <svg class="contact-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372
+                     c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293
+                     c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21
+                     l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5
+                     A2.25 2.25 0 002.25 4.5v2.25z"/>
+              </svg>
+              <%= content['contacts.phone'] || '+7 (000) 000-00-00' %>
+            </a>
+            <a href="<%= content['contacts.telegramHref'] || 'https://t.me/ritual_shop' %>" class="contact-link" target="_blank" rel="noopener">
+              <svg class="contact-link__icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.48.7-.96.44l-2.64-1.95-1.28 1.23c-.14.14-.26.26-.52.26l.18-2.64 4.72-4.27c.2-.18-.04-.28-.32-.1L7.32 15.08l-2.56-.8c-.56-.18-.58-.56.12-.82l10.04-3.87c.46-.18.86.1.72.81z"/>
+              </svg>
+              <%= content['contacts.telegram'] || '@ritual_shop' %>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <%- include('_footer') %>
+
+  <script src="/js/site.js"></script>
+</body>
+</html>

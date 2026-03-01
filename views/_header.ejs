@@ -1,0 +1,27 @@
+<header class="header" id="header">
+  <div class="container">
+    <div class="header__inner">
+      <a href="/" class="header__logo"><%= content['site.name'] || 'Ритуальные товары' %></a>
+
+      <nav class="header__nav" role="navigation" aria-label="Основная навигация">
+        <a href="/" class="header__nav-link<%= activePage === 'home' ? ' is-active' : '' %>">Главная</a>
+        <% for (const cat of categories) { %>
+        <a href="/catalog/<%= cat.slug %>" class="header__nav-link<%= activePage === cat.slug ? ' is-active' : '' %>"><%= cat.name %></a>
+        <% } %>
+        <a href="/order-info" class="header__nav-link<%= activePage === 'order' ? ' is-active' : '' %>">Условия заказа</a>
+      </nav>
+
+      <button class="header__burger" id="burger" aria-label="Открыть меню" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <nav class="header__mobile-nav" id="mobile-nav" aria-label="Мобильная навигация">
+      <a href="/" class="header__mobile-nav-link<%= activePage === 'home' ? ' is-active' : '' %>">Главная</a>
+      <% for (const cat of categories) { %>
+      <a href="/catalog/<%= cat.slug %>" class="header__mobile-nav-link<%= activePage === cat.slug ? ' is-active' : '' %>"><%= cat.name %></a>
+      <% } %>
+      <a href="/order-info" class="header__mobile-nav-link<%= activePage === 'order' ? ' is-active' : '' %>">Условия заказа</a>
+    </nav>
+  </div>
+</header>

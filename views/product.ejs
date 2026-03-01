@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <%- include('_head') %>
+</head>
+<body>
+
+  <%- include('_header') %>
+
+  <main class="catalog-page product-page">
+    <div class="container">
+
+      <!-- Хлебные крошки -->
+      <nav class="breadcrumbs" aria-label="Хлебные крошки">
+        <a href="/" class="breadcrumbs__link">Главная</a>
+        <span class="breadcrumbs__sep">→</span>
+        <a href="/catalog/<%= category.slug %>" class="breadcrumbs__link"><%= category.name %></a>
+        <span class="breadcrumbs__sep">→</span>
+        <a href="/catalog/<%= category.slug %>/<%= subcategory.slug %>" class="breadcrumbs__link"><%= subcategory.name %></a>
+        <span class="breadcrumbs__sep">→</span>
+        <span class="breadcrumbs__current"><%= product.name %></span>
+      </nav>
+
+      <!-- Основной блок товара -->
+      <div class="product-detail">
+
+        <!-- Галерея -->
+        <div class="product-detail__gallery">
+          <% const PLACEHOLDER = "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none'%3E%3Crect x='3' y='3' width='50' height='50' rx='8' stroke='%23C8CDD4' stroke-width='1.5' fill='none'/%3E%3Cpath d='M14 42 L22 28 L29 36 L35 24 L44 42 H14Z' fill='%23C8CDD4' opacity='0.55'/%3E%3Ccircle cx='36' cy='19' r='5' fill='%23C8CDD4' opacity='0.55'/%3E%3C/svg%3E"; %>
+          <% if (product.images && product.images.length > 0) { %>
+          <div class="product-gallery">
+            <div class="product-gallery__main">
+              <img
+                src="<%= product.images[0] %>"
+                alt="<%= product.name %>"
+                class="product-gallery__main-img"
+                id="gallery-main"
+                onerror="this.src='<%= PLACEHOLDER %>'"
+              >
+            </div>
+            <% if (product.images.length > 1) { %>
+            <div class="product-gallery__thumbs">
+              <% for (let i = 0; i < product.images.length; i++) { %>
+              <img
+                src="<%= product.images[i] %>"
+                alt="<%= product.name %> фото <%= i + 1 %>"
+                class="product-gallery__thumb<%= i === 0 ? ' is-active' : '' %>"
+                data-index="<%= i %>"
+                data-src="<%= product.images[i] %>"
+                loading="lazy"
+                onerror="this.src='<%= PLACEHOLDER %>'"
+              >
+              <% } %>
+            </div>
+            <% } %>
+          </div>
+          <% } else { %>
+          <div class="product-gallery">
+            <div class="product-gallery__main">
+              <img
+                src="<%= PLACEHOLDER %>"
+                alt="<%= product.name %>"
+                class="product-gallery__main-img product-gallery__main-img--placeholder"
+              >
+            </div>
+          </div>
+          <% } %>
+        </div>
+
+        <!-- Информация о товаре -->
+        <div class="product-detail__info">
+          <div class="product-detail__number"><%= product.number %></div>
+          <h1 class="product-detail__name"><%= product.name %></h1>
+          <div class="product-detail__price"><%= product.price.toLocaleString('ru-RU') %>&nbsp;₽</div>
+
+          <!-- Характеристики -->
+          <table class="product-detail__specs">
+            <tbody>
+              <% if (product.shape) { %>
+              <tr>
+                <td class="product-detail__spec-label">Форма</td>
+                <td class="product-detail__spec-value"><%= product.shape_label || product.shape %></td>
+              </tr>
+              <% } %>
+              <% if (product.size) { %>
+              <tr>
+                <td class="product-detail__spec-label">Размер</td>
+                <td class="product-detail__spec-value"><%= product.size_label || product.size %></td>
+              </tr>
+              <% } %>
+              <% if (product.color) { %>
+              <tr>
+                <td class="product-detail__spec-label">Цвет</td>
+                <td class="product-detail__spec-value"><%= product.color_label || product.color %></td>
+              </tr>
+              <% } %>
+              <tr>
+                <td class="product-detail__spec-label">Раздел</td>
+                <td class="product-detail__spec-value"><%= category.name %> — <%= subcategory.name %></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <% if (product.description) { %>
+          <div class="product-detail__description">
+            <p><%= product.description %></p>
+          </div>
+          <% } %>
+
+          <!-- CTA -->
+          <div class="product-detail__cta">
+            <a href="<%= content['contacts.phoneHref'] || 'tel:+70000000000' %>" class="btn btn--primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372
+                     c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293
+                     c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21
+                     l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5
+                     A2.25 2.25 0 002.25 4.5v2.25z"/>
+              </svg>
+              Позвонить
+            </a>
+            <a href="<%= content['contacts.telegramHref'] || 'https://t.me/ritual_shop' %>" class="btn btn--outline" target="_blank" rel="noopener">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.48.7-.96.44l-2.64-1.95-1.28 1.23c-.14.14-.26.26-.52.26l.18-2.64 4.72-4.27c.2-.18-.04-.28-.32-.1L7.32 15.08l-2.56-.8c-.56-.18-.58-.56.12-.82l10.04-3.87c.46-.18.86.1.72.81z"/>
+              </svg>
+              Написать в Telegram
+            </a>
+          </div>
+
+          <!-- Уведомление -->
+          <div class="notice-block notice-block--sm">
+            <span class="notice-block__icon">ℹ</span>
+            <p><%= content['site.notice'] || '' %></p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Похожие товары -->
+      <% if (similarProducts && similarProducts.length > 0) { %>
+      <section class="similar-products">
+        <h2 class="similar-products__title">Похожие товары</h2>
+        <div class="products-grid">
+          <% const PLACEHOLDER2 = "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none'%3E%3Crect x='3' y='3' width='50' height='50' rx='8' stroke='%23C8CDD4' stroke-width='1.5' fill='none'/%3E%3Cpath d='M14 42 L22 28 L29 36 L35 24 L44 42 H14Z' fill='%23C8CDD4' opacity='0.55'/%3E%3Ccircle cx='36' cy='19' r='5' fill='%23C8CDD4' opacity='0.55'/%3E%3C/svg%3E"; %>
+          <% for (const sp of similarProducts) { %>
+          <div class="product-card">
+            <a href="/catalog/<%= category.slug %>/<%= subcategory.slug %>/<%= sp.slug %>" class="product-card__link">
+              <div class="product-card__img-wrap">
+                <% if (sp.images && sp.images.length > 0) { %>
+                <img
+                  src="<%= sp.images[0] %>"
+                  alt="<%= sp.name %>"
+                  class="product-card__img"
+                  loading="lazy"
+                  onerror="this.src='<%= PLACEHOLDER2 %>'"
+                >
+                <% } else { %>
+                <img
+                  src="<%= PLACEHOLDER2 %>"
+                  alt="<%= sp.name %>"
+                  class="product-card__img product-card__img--placeholder"
+                >
+                <% } %>
+              </div>
+              <div class="product-card__body">
+                <div class="product-card__number"><%= sp.number %></div>
+                <div class="product-card__name"><%= sp.name %></div>
+                <div class="product-card__attrs">
+                  <span class="product-card__attr"><%= sp.size_label || sp.size %></span>
+                </div>
+                <div class="product-card__price"><%= sp.price.toLocaleString('ru-RU') %>&nbsp;₽</div>
+              </div>
+            </a>
+            <a href="/catalog/<%= category.slug %>/<%= subcategory.slug %>/<%= sp.slug %>" class="btn btn--outline btn--sm">Подробнее</a>
+          </div>
+          <% } %>
+        </div>
+      </section>
+      <% } %>
+
+    </div>
+  </main>
+
+  <%- include('_footer') %>
+
+  <script src="/js/site.js"></script>
+  <script>
+    // Переключение фото в галерее
+    document.addEventListener('DOMContentLoaded', function() {
+      const thumbs = document.querySelectorAll('.product-gallery__thumb');
+      const mainImg = document.getElementById('gallery-main');
+      if (thumbs.length && mainImg) {
+        thumbs.forEach(function(thumb) {
+          thumb.addEventListener('click', function() {
+            mainImg.src = this.dataset.src;
+            thumbs.forEach(function(t) { t.classList.remove('is-active'); });
+            this.classList.add('is-active');
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>
