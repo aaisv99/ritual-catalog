@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Венки — Ритуальные товары</title>
+  <meta name="description" content="Траурные венки из живых и искусственных цветов. Ознакомительный каталог.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/catalog.css">
+</head>
+<body>
+
+  <header class="header" id="header"></header>
+
+  <!-- data-category="venki" — говорит JS, какие товары загружать -->
+  <main data-category="venki">
+    <div class="container">
+
+      <!-- Заголовок — заполняется JS -->
+      <div class="page-header" id="page-title"></div>
+
+      <!-- Фильтры — заполняются JS -->
+      <div class="filters" id="filters"></div>
+
+      <!-- Счётчик результатов -->
+      <div class="catalog__count" id="products-count"></div>
+
+      <!-- Сетка товаров — заполняется JS -->
+      <div class="products-grid" id="products-grid"></div>
+
+      <!-- Сообщение «нет товаров» -->
+      <div class="products-empty hidden" id="products-empty">
+        <div class="products-empty__icon">🔍</div>
+        <div class="products-empty__title">Товары не найдены</div>
+        <div class="products-empty__text">Попробуйте изменить параметры фильтров или сбросить их</div>
+      </div>
+
+      <!-- Уведомление — заполняется JS -->
+      <div class="catalog-notice" id="catalog-notice"></div>
+
+    </div>
+  </main>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/catalog.js"></script>
+
+</body>
+</html>

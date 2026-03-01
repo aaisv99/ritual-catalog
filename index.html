@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог ритуальных товаров</title>
+  <meta name="description" content="Каталог ритуальных товаров: венки, корзины, полянки, гробницы. Ознакомительный каталог.">
+
+  <!-- Шрифты Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Шапка — генерируется JS -->
+  <header class="header" id="header"></header>
+
+  <main>
+
+    <!-- ── Hero ───────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="container">
+        <p class="hero__eyebrow">Ритуальные товары</p>
+        <h1 class="hero__title">Каталог ритуальных товаров</h1>
+        <div class="hero__divider"></div>
+        <p class="hero__subtitle">Венки · Корзины · Полянки · Гробницы</p>
+        <a href="#catalog" class="btn btn--primary">Смотреть каталог</a>
+      </div>
+    </section>
+
+    <!-- ── Разделы каталога ────────────────────────────────── -->
+    <section class="section" id="catalog">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Разделы каталога</h2>
+          <p class="section__subtitle">Выберите нужный раздел для просмотра товаров</p>
+        </div>
+        <!-- Карточки категорий — генерируются JS -->
+        <div class="categories-grid" id="categories-grid"></div>
+      </div>
+    </section>
+
+    <!-- ── Информационный блок ─────────────────────────────── -->
+    <section class="section section--gray">
+      <div class="container">
+        <div id="home-notice"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Подвал — генерируется JS -->
+  <footer class="footer" id="footer"></footer>
+
+  <!-- Подключение данных и скриптов -->
+  <script src="data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // Рендер карточек категорий
+      const grid = document.getElementById('categories-grid');
+      grid.innerHTML = SITE_DATA.categories.map(cat => `
+        <a href="${cat.slug}" class="category-card">
+          <div class="category-card__icon">
+            ${CATEGORY_ICONS[cat.icon] || ''}
+          </div>
+          <div class="category-card__name">${cat.name}</div>
+          <div class="category-card__desc">${cat.description}</div>
+          <span class="category-card__arrow">→</span>
+        </a>
+      `).join('');
+
+      // Рендер информационного блока
+      document.getElementById('home-notice').innerHTML = `
+        <div class="notice-block">
+          <span class="notice-block__icon">ℹ</span>
+          <p>${SITE_DATA.site.notice}</p>
+        </div>
+      `;
+    });
+  </script>
+
+</body>
+</html>

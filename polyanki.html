@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Полянки — Ритуальные товары</title>
+  <meta name="description" content="Плоские цветочные композиции. Ознакомительный каталог.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/catalog.css">
+</head>
+<body>
+
+  <header class="header" id="header"></header>
+
+  <main data-category="polyanki">
+    <div class="container">
+      <div class="page-header" id="page-title"></div>
+      <div class="filters" id="filters"></div>
+      <div class="catalog__count" id="products-count"></div>
+      <div class="products-grid" id="products-grid"></div>
+
+      <div class="products-empty hidden" id="products-empty">
+        <div class="products-empty__icon">🔍</div>
+        <div class="products-empty__title">Товары не найдены</div>
+        <div class="products-empty__text">Попробуйте изменить параметры фильтров или сбросить их</div>
+      </div>
+
+      <div class="catalog-notice" id="catalog-notice"></div>
+    </div>
+  </main>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/catalog.js"></script>
+
+</body>
+</html>
