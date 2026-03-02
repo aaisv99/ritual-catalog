@@ -6,3 +6,5 @@ public/uploads/*.png
 public/uploads/*.webp
 *.db
 *.db-journal
+*.db-wal
+*.db-shm

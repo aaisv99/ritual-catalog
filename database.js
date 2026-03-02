@@ -4,7 +4,9 @@ const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'catalog.db');
+// DATABASE_PATH задаётся через переменную окружения (для Railway/хостинга)
+// или используется локальный файл по умолчанию
+const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, 'catalog.db');
 const db = new Database(DB_PATH);
 
 db.pragma('journal_mode = WAL');
