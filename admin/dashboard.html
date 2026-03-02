@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Панель управления — Ритуальные товары</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" id="sidebar">
+    <a href="/" class="admin-sidebar__logo" target="_blank">
+      Ритуальные товары
+      <span>Панель управления</span>
+    </a>
+    <nav class="admin-sidebar__nav">
+      <button class="admin-sidebar__nav-item is-active" data-section="products">
+        <svg class="admin-sidebar__nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="16" height="14" rx="2"/>
+          <path d="M6 7h8M6 10h8M6 13h5" stroke-linecap="round"/>
+        </svg>
+        Товары
+      </button>
+      <button class="admin-sidebar__nav-item" data-section="subcategories">
+        <svg class="admin-sidebar__nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 5h14M3 10h10M3 15h7" stroke-linecap="round"/>
+        </svg>
+        Подразделы
+      </button>
+      <button class="admin-sidebar__nav-item" data-section="categories">
+        <svg class="admin-sidebar__nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="7" height="7" rx="1.5"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5"/>
+          <rect x="11" y="11" width="7" height="7" rx="1.5"/>
+        </svg>
+        Категории
+      </button>
+      <button class="admin-sidebar__nav-item" data-section="content">
+        <svg class="admin-sidebar__nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 4h12M4 8h12M4 12h8M4 16h6" stroke-linecap="round"/>
+        </svg>
+        Тексты сайта
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+
+    <!-- Header -->
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="admin-mobile-toggle" id="sidebar-toggle" aria-label="Открыть меню">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="admin-header__title" id="page-title">Товары</span>
+      </div>
+      <div class="admin-header__actions">
+        <span class="admin-header__user" id="user-email"></span>
+        <button class="btn btn--outline btn--sm" id="logout-btn">Выйти</button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="admin-content">
+
+      <!-- ── Секция: Товары ───────────────────────────── -->
+      <div class="section-view is-active" id="section-products">
+
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <h2 class="admin-card__title">Товары</h2>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <div class="admin-search">
+                <input type="text" class="admin-search__input" id="product-search" placeholder="Поиск по названию или номеру...">
+                <button class="btn btn--outline btn--sm" id="product-search-btn">Найти</button>
+              </div>
+              <button class="btn btn--primary btn--sm" id="add-product-btn">+ Добавить товар</button>
+            </div>
+          </div>
+
+          <div id="products-alert"></div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="products-table">
+              <thead>
+                <tr>
+                  <th>Номер</th>
+                  <th>Название</th>
+                  <th>Подраздел</th>
+                  <th>Цена</th>
+                  <th>Статус</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="products-tbody">
+                <tr><td colspan="6" class="loading">Загрузка...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="admin-pagination" id="products-pagination"></div>
+        </div>
+
+      </div>
+
+      <!-- ── Секция: Подразделы ───────────────────────── -->
+      <div class="section-view" id="section-subcategories">
+
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <h2 class="admin-card__title">Подразделы</h2>
+            <button class="btn btn--primary btn--sm" id="add-sub-btn">+ Добавить подраздел</button>
+          </div>
+
+          <div id="subcategories-alert"></div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Категория</th>
+                  <th>Название</th>
+                  <th>Slug</th>
+                  <th>Порядок</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="subcategories-tbody">
+                <tr><td colspan="6" class="loading">Загрузка...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Секция: Категории ────────────────────────── -->
+      <div class="section-view" id="section-categories">
+
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <h2 class="admin-card__title">Категории</h2>
+            <button class="btn btn--primary btn--sm" id="add-cat-btn">+ Добавить категорию</button>
+          </div>
+
+          <div id="categories-alert"></div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Название</th>
+                  <th>Slug</th>
+                  <th>Описание</th>
+                  <th>Порядок</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="categories-tbody">
+                <tr><td colspan="6" class="loading">Загрузка...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Секция: Тексты ───────────────────────────── -->
+      <div class="section-view" id="section-content">
+
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <h2 class="admin-card__title">Тексты сайта</h2>
+          </div>
+          <div id="content-alert"></div>
+          <div class="content-editor" id="content-editor">
+            <div class="loading">Загрузка...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-main -->
+
+</div><!-- /admin-layout -->
+
+<!-- ── Модальное окно: Товар ──────────────────────────── -->
+<div class="admin-overlay" id="product-modal">
+  <div class="admin-modal">
+    <div class="admin-modal__header">
+      <h3 class="admin-modal__title" id="product-modal-title">Добавить товар</h3>
+      <button class="admin-modal__close" data-close-modal="product-modal">&times;</button>
+    </div>
+    <div id="product-modal-alert"></div>
+    <form class="admin-form" id="product-form" autocomplete="off">
+      <input type="hidden" id="pf-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pf-number">Номер *</label>
+          <input type="text" id="pf-number" placeholder="В-001" required>
+        </div>
+        <div class="form-group">
+          <label for="pf-name">Название *</label>
+          <input type="text" id="pf-name" placeholder="Название товара" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pf-slug">Slug *</label>
+          <input type="text" id="pf-slug" placeholder="v-001" required>
+          <span class="form-hint">Уникальный идентификатор в URL</span>
+        </div>
+        <div class="form-group">
+          <label for="pf-subcategory">Подраздел *</label>
+          <select id="pf-subcategory" required>
+            <option value="">Выберите подраздел</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pf-shape">Форма (код)</label>
+          <select id="pf-shape">
+            <option value="">Не указано</option>
+            <option value="oval">oval — Овальная</option>
+            <option value="round">round — Круглая</option>
+            <option value="rectangular">rectangular — Прямоугольная</option>
+            <option value="heart">heart — Сердце</option>
+            <option value="tear">tear — Слеза</option>
+            <option value="arch">arch — Арка</option>
+            <option value="cross">cross — Крест</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pf-color">Цвет (код)</label>
+          <select id="pf-color">
+            <option value="">Не указано</option>
+            <option value="white">white — Белый</option>
+            <option value="red">red — Красный</option>
+            <option value="burgundy">burgundy — Бордовый</option>
+            <option value="pink">pink — Розовый</option>
+            <option value="yellow">yellow — Жёлтый</option>
+            <option value="mix">mix — Микс</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pf-size">Размер (код)</label>
+          <select id="pf-size">
+            <option value="">Не указано</option>
+            <option value="small">small — Маленький</option>
+            <option value="medium">medium — Средний</option>
+            <option value="large">large — Большой</option>
+            <option value="xl">xl — Очень большой</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pf-price">Цена (₽) *</label>
+          <input type="number" id="pf-price" placeholder="0" min="0" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="pf-description">Описание</label>
+        <textarea id="pf-description" placeholder="Описание товара..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Фотографии</label>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="pf-image-file" accept="image/jpeg,image/png,image/webp" multiple>
+          <div>Нажмите для выбора фото или перетащите сюда</div>
+          <div style="font-size:0.8125rem;margin-top:4px;opacity:0.6">JPG, PNG, WEBP · до 10 МБ</div>
+        </div>
+        <div class="upload-previews" id="upload-previews"></div>
+        <input type="hidden" id="pf-images">
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="pf-active" checked>
+          Активен (показывать в каталоге)
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary" id="product-form-submit">Сохранить</button>
+        <button type="button" class="btn btn--outline" data-close-modal="product-modal">Отмена</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Модальное окно: Подраздел ─────────────────────── -->
+<div class="admin-overlay" id="sub-modal">
+  <div class="admin-modal">
+    <div class="admin-modal__header">
+      <h3 class="admin-modal__title" id="sub-modal-title">Добавить подраздел</h3>
+      <button class="admin-modal__close" data-close-modal="sub-modal">&times;</button>
+    </div>
+    <div id="sub-modal-alert"></div>
+    <form class="admin-form" id="sub-form" autocomplete="off">
+      <input type="hidden" id="sf-id">
+      <div class="form-group">
+        <label for="sf-category">Категория *</label>
+        <select id="sf-category" required>
+          <option value="">Выберите категорию</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sf-name">Название *</label>
+          <input type="text" id="sf-name" placeholder="Классические" required>
+        </div>
+        <div class="form-group">
+          <label for="sf-slug">Slug *</label>
+          <input type="text" id="sf-slug" placeholder="klassicheskie" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="sf-description">Описание</label>
+        <input type="text" id="sf-description" placeholder="Краткое описание">
+      </div>
+      <div class="form-group">
+        <label for="sf-order">Порядок</label>
+        <input type="number" id="sf-order" value="0" min="0">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary" id="sub-form-submit">Сохранить</button>
+        <button type="button" class="btn btn--outline" data-close-modal="sub-modal">Отмена</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Модальное окно: Категория ──────────────────────────── -->
+<div class="admin-overlay" id="cat-modal">
+  <div class="admin-modal">
+    <div class="admin-modal__header">
+      <h3 class="admin-modal__title" id="cat-modal-title">Добавить категорию</h3>
+      <button class="admin-modal__close" data-close-modal="cat-modal">&times;</button>
+    </div>
+    <div id="cat-modal-alert"></div>
+    <form class="admin-form" id="cat-form" autocomplete="off">
+      <input type="hidden" id="cf-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cf-id-field">ID (латиница) *</label>
+          <input type="text" id="cf-id-field" placeholder="venki" required>
+          <span class="form-hint">Только латиница и дефисы. Нельзя изменить после создания</span>
+        </div>
+        <div class="form-group">
+          <label for="cf-name">Название *</label>
+          <input type="text" id="cf-name" placeholder="Венки" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cf-slug">Slug (URL) *</label>
+          <input type="text" id="cf-slug" placeholder="venki" required>
+          <span class="form-hint">Будет использоваться в адресе страницы</span>
+        </div>
+        <div class="form-group">
+          <label for="cf-order">Порядок</label>
+          <input type="number" id="cf-order" value="0" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="cf-description">Описание</label>
+        <input type="text" id="cf-description" placeholder="Краткое описание категории">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary" id="cat-form-submit">Сохранить</button>
+        <button type="button" class="btn btn--outline" data-close-modal="cat-modal">Отмена</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/admin/admin.js"></script>
+</body>
+</html>

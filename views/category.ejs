@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <%- include('_head') %>
+</head>
+<body>
+
+  <%- include('_header') %>
+
+  <main class="catalog-page">
+    <div class="container">
+
+      <!-- Хлебные крошки -->
+      <nav class="breadcrumbs" aria-label="Хлебные крошки">
+        <a href="/" class="breadcrumbs__link">Главная</a>
+        <span class="breadcrumbs__sep">→</span>
+        <span class="breadcrumbs__current"><%= category.name %></span>
+      </nav>
+
+      <!-- Заголовок -->
+      <div class="page-header">
+        <h1 class="page-header__title"><%= category.name %></h1>
+        <% if (category.description) { %>
+        <p class="page-header__desc"><%= category.description %></p>
+        <% } %>
+      </div>
+
+      <!-- Подразделы -->
+      <% if (subcategories.length > 0) { %>
+      <div class="subcategories-grid">
+        <% for (const sub of subcategories) { %>
+        <a href="/catalog/<%= category.slug %>/<%= sub.slug %>" class="subcategory-card">
+          <div class="subcategory-card__name"><%= sub.name %></div>
+          <% if (sub.description) { %>
+          <div class="subcategory-card__desc"><%= sub.description %></div>
+          <% } %>
+          <span class="subcategory-card__arrow">→</span>
+        </a>
+        <% } %>
+      </div>
+      <% } else { %>
+      <p class="empty-state">Подразделы не найдены</p>
+      <% } %>
+
+      <!-- Notice -->
+      <div class="notice-block notice-block--sm">
+        <span class="notice-block__icon">ℹ</span>
+        <p><%= content['site.notice'] || '' %></p>
+      </div>
+
+    </div>
+  </main>
+
+  <%- include('_footer') %>
+
+  <script src="/js/site.js"></script>
+</body>
+</html>

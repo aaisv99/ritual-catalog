@@ -1,0 +1,10 @@
+node_modules/
+.env
+public/uploads/*.jpg
+public/uploads/*.jpeg
+public/uploads/*.png
+public/uploads/*.webp
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
