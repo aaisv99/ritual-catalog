@@ -69,34 +69,48 @@
 
         <!-- Информация о товаре -->
         <div class="product-detail__info">
-          <div class="product-detail__number"><%= product.number %></div>
           <h1 class="product-detail__name"><%= product.name %></h1>
           <div class="product-detail__price"><%= product.price.toLocaleString('ru-RU') %>&nbsp;₽</div>
+
+          <!-- Цвета -->
+          <% if (product.colorObjects && product.colorObjects.length > 0) { %>
+          <div class="product-detail__colors">
+            <span class="product-detail__colors-label">Цвет:</span>
+            <div class="product-detail__colors-list">
+              <% for (const c of product.colorObjects) { %>
+              <%
+                let dotStyle = '';
+                if (c.hex === 'tricolor') {
+                  dotStyle = 'background: linear-gradient(to right, #cc0000 33%, #003478 33%, #003478 66%, #ffffff 66%); border: 1px solid #ccc;';
+                } else if (c.hex === 'mixed') {
+                  dotStyle = 'background: linear-gradient(135deg,#e74c3c,#9b59b6,#3498db,#2ecc71,#f1c40f);';
+                } else {
+                  dotStyle = 'background:' + c.hex + '; border: 1px solid rgba(0,0,0,0.12);';
+                }
+              %>
+              <span class="color-dot color-dot--lg" style="<%= dotStyle %>" title="<%= c.name %>"></span>
+              <span class="product-detail__color-name"><%= c.name %></span>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
 
           <!-- Характеристики -->
           <table class="product-detail__specs">
             <tbody>
-              <% if (product.shape) { %>
               <tr>
                 <td class="product-detail__spec-label">Форма</td>
-                <td class="product-detail__spec-value"><%= product.shape_label || product.shape %></td>
+                <td class="product-detail__spec-value"><%= subcategory.name %></td>
               </tr>
-              <% } %>
-              <% if (product.size) { %>
+              <% if (heightObj) { %>
               <tr>
-                <td class="product-detail__spec-label">Размер</td>
-                <td class="product-detail__spec-value"><%= product.size_label || product.size %></td>
-              </tr>
-              <% } %>
-              <% if (product.color) { %>
-              <tr>
-                <td class="product-detail__spec-label">Цвет</td>
-                <td class="product-detail__spec-value"><%= product.color_label || product.color %></td>
+                <td class="product-detail__spec-label">Высота</td>
+                <td class="product-detail__spec-value"><%= heightObj.label %></td>
               </tr>
               <% } %>
               <tr>
                 <td class="product-detail__spec-label">Раздел</td>
-                <td class="product-detail__spec-value"><%= category.name %> — <%= subcategory.name %></td>
+                <td class="product-detail__spec-value"><%= category.name %></td>
               </tr>
             </tbody>
           </table>
@@ -126,6 +140,12 @@
               </svg>
               Написать в Telegram
             </a>
+          </div>
+
+          <!-- Оптовая цена -->
+          <div class="wholesale-notice wholesale-notice--sm">
+            <span class="wholesale-notice__icon">ℹ</span>
+            Цена указана для оптовых покупателей. О розничных ценах уточняйте отдельно.
           </div>
 
           <!-- Уведомление -->

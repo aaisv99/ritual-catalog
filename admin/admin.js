@@ -48,8 +48,9 @@ var currentSection = 'products';
 
 var sectionTitles = {
   products: 'Товары',
-  subcategories: 'Подразделы',
+  subcategories: 'Подразделы (Формы)',
   categories: 'Категории',
+  filters: 'Фильтры',
   content: 'Тексты сайта',
 };
 
@@ -79,6 +80,7 @@ function switchSection(section) {
   if (section === 'products') loadProducts();
   if (section === 'subcategories') loadSubcategories();
   if (section === 'categories') loadCategories();
+  if (section === 'filters') loadFilters();
   if (section === 'content') loadContent();
 }
 
@@ -129,6 +131,8 @@ function closeModal(id) {
 // ── Глобальные данные ──────────────────────────────────────
 var allCategories = [];
 var allSubcategories = [];
+var allColors = [];
+var allHeights = [];
 
 // ── Загрузить мета (email, категории) ─────────────────────
 async function loadMeta() {
@@ -152,6 +156,20 @@ async function loadMeta() {
     var res3 = await apiFetch('/admin/api/subcategories');
     if (res3 && res3.ok) {
       allSubcategories = await res3.json();
+    }
+  } catch(e) {}
+
+  try {
+    var res4 = await apiFetch('/admin/api/colors');
+    if (res4 && res4.ok) {
+      allColors = await res4.json();
+    }
+  } catch(e) {}
+
+  try {
+    var res5 = await apiFetch('/admin/api/heights');
+    if (res5 && res5.ok) {
+      allHeights = await res5.json();
     }
   } catch(e) {}
 }
@@ -248,16 +266,24 @@ document.getElementById('add-product-btn').addEventListener('click', function() 
 // Форма товара
 var productImages = [];
 
+function translitSlug(str) {
+  var map = {
+    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh','з':'z',
+    'и':'i','й':'j','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r',
+    'с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh',
+    'щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
+  };
+  return str.toLowerCase().split('').map(function(c){ return map[c] || c; }).join('')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function openProductModal(product) {
   productImages = [];
   document.getElementById('pf-id').value = '';
-  document.getElementById('pf-number').value = '';
   document.getElementById('pf-name').value = '';
   document.getElementById('pf-slug').value = '';
   document.getElementById('pf-subcategory').value = '';
-  document.getElementById('pf-shape').value = '';
-  document.getElementById('pf-color').value = '';
-  document.getElementById('pf-size').value = '';
+  document.getElementById('pf-height').value = '';
   document.getElementById('pf-price').value = '';
   document.getElementById('pf-description').value = '';
   document.getElementById('pf-active').checked = true;
@@ -265,9 +291,9 @@ function openProductModal(product) {
   document.getElementById('upload-previews').innerHTML = '';
   document.getElementById('product-modal-alert').innerHTML = '';
 
-  // Заполнить список подразделов
+  // Заполнить список форм (подразделов)
   var subSelect = document.getElementById('pf-subcategory');
-  subSelect.innerHTML = '<option value="">Выберите подраздел</option>';
+  subSelect.innerHTML = '<option value="">Выберите форму</option>';
   allCategories.forEach(function(cat) {
     var subs = allSubcategories.filter(function(s) { return s.category_id === cat.id; });
     if (subs.length > 0) {
@@ -283,16 +309,44 @@ function openProductModal(product) {
     }
   });
 
+  // Заполнить список высот
+  var heightSelect = document.getElementById('pf-height');
+  heightSelect.innerHTML = '<option value="">Не указана</option>';
+  allHeights.forEach(function(h) {
+    var opt = document.createElement('option');
+    opt.value = h.id;
+    opt.textContent = h.label;
+    heightSelect.appendChild(opt);
+  });
+
+  // Заполнить цвета чекбоксами
+  var selectedColors = product ? (JSON.parse(product.product_colors || '[]')) : [];
+  var colorsList = document.getElementById('pf-colors-list');
+  colorsList.innerHTML = '';
+  allColors.forEach(function(c) {
+    var dotStyle = '';
+    if (c.hex === 'tricolor') {
+      dotStyle = 'background: linear-gradient(to right, #cc0000 33%, #003478 33%, #003478 66%, #ffffff 66%); border:1px solid #ccc;';
+    } else if (c.hex === 'mixed') {
+      dotStyle = 'background: linear-gradient(135deg,#e74c3c,#9b59b6,#3498db,#2ecc71,#f1c40f);';
+    } else {
+      dotStyle = 'background:' + c.hex + '; border:1px solid rgba(0,0,0,0.12);';
+    }
+    var checked = selectedColors.indexOf(c.id) !== -1 ? 'checked' : '';
+    colorsList.innerHTML += '<label class="color-checkbox-label">' +
+      '<input type="checkbox" name="pf-color-cb" value="' + c.id + '" ' + checked + '>' +
+      '<span class="color-checkbox-dot" style="' + dotStyle + '"></span>' +
+      '<span>' + escapeHtml(c.name) + '</span>' +
+    '</label>';
+  });
+
   if (product) {
     document.getElementById('product-modal-title').textContent = 'Редактировать товар';
     document.getElementById('pf-id').value = product.id;
-    document.getElementById('pf-number').value = product.number || '';
     document.getElementById('pf-name').value = product.name || '';
     document.getElementById('pf-slug').value = product.slug || '';
     document.getElementById('pf-subcategory').value = product.subcategory_id || '';
-    document.getElementById('pf-shape').value = product.shape || '';
-    document.getElementById('pf-color').value = product.color || '';
-    document.getElementById('pf-size').value = product.size || '';
+    document.getElementById('pf-height').value = product.height_id || '';
     document.getElementById('pf-price').value = product.price || '';
     document.getElementById('pf-description').value = product.description || '';
     document.getElementById('pf-active').checked = !!product.is_active;
@@ -342,25 +396,21 @@ document.getElementById('product-form').addEventListener('submit', async functio
   document.getElementById('product-modal-alert').innerHTML = '';
 
   var id = document.getElementById('pf-id').value;
-  var shapeMap = { oval: 'Овальный', round: 'Круглый', rectangular: 'Прямоугольный', heart: 'Сердце', tear: 'Слеза', arch: 'Арка', cross: 'Крест' };
-  var colorMap = { white: 'Белый', red: 'Красный', burgundy: 'Бордовый', pink: 'Розовый', yellow: 'Жёлтый', mix: 'Микс' };
-  var sizeMap = { small: 'Маленький', medium: 'Средний', large: 'Большой', xl: 'Очень большой' };
 
-  var shape = document.getElementById('pf-shape').value;
-  var color = document.getElementById('pf-color').value;
-  var size = document.getElementById('pf-size').value;
+  // Собрать выбранные цвета
+  var selectedColors = [];
+  document.querySelectorAll('input[name="pf-color-cb"]:checked').forEach(function(cb) {
+    selectedColors.push(parseInt(cb.value));
+  });
+
+  var heightVal = document.getElementById('pf-height').value;
 
   var body = {
     subcategory_id: parseInt(document.getElementById('pf-subcategory').value),
-    number: document.getElementById('pf-number').value.trim(),
     name: document.getElementById('pf-name').value.trim(),
     slug: document.getElementById('pf-slug').value.trim(),
-    shape: shape,
-    shape_label: shapeMap[shape] || shape,
-    color: color,
-    color_label: colorMap[color] || color,
-    size: size,
-    size_label: sizeMap[size] || size,
+    height_id: heightVal ? parseInt(heightVal) : null,
+    product_colors: selectedColors,
     price: parseInt(document.getElementById('pf-price').value) || 0,
     description: document.getElementById('pf-description').value.trim(),
     images: productImages,
@@ -389,13 +439,12 @@ document.getElementById('product-form').addEventListener('submit', async functio
   btn.textContent = 'Сохранить';
 });
 
-// Авто-генерация slug из номера
-document.getElementById('pf-number').addEventListener('input', function() {
-  var num = this.value;
-  var slug = num
-    .replace('В-', 'v-').replace('К-', 'k-').replace('П-', 'p-').replace('Г-', 'g-')
-    .toLowerCase().replace(/[^a-z0-9-]/g, '-');
-  document.getElementById('pf-slug').value = slug;
+// Авто-генерация slug из названия
+document.getElementById('pf-name').addEventListener('input', function() {
+  var id = document.getElementById('pf-id').value;
+  if (!id) { // только для новых товаров
+    document.getElementById('pf-slug').value = translitSlug(this.value) + '-' + Date.now().toString().slice(-4);
+  }
 });
 
 // ── Загрузка фото ────────────────────────────────────────
@@ -803,6 +852,181 @@ async function loadContent() {
     container.innerHTML = '<div class="empty-msg">Ошибка: ' + escapeHtml(e.message) + '</div>';
   }
 }
+
+// ──────────────────────────────────────────────────────────
+// ФИЛЬТРЫ (ЦВЕТА И ВЫСОТЫ)
+// ──────────────────────────────────────────────────────────
+
+async function loadFilters() {
+  await loadColors();
+  await loadHeights();
+}
+
+// --- Цвета ---
+
+async function loadColors() {
+  var tbody = document.getElementById('colors-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" class="loading">Загрузка...</td></tr>';
+  try {
+    var res = await apiFetch('/admin/api/colors');
+    if (!res || !res.ok) { tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Ошибка</td></tr>'; return; }
+    var data = await res.json();
+    allColors = data;
+    if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Цвета не найдены</td></tr>'; return; }
+    tbody.innerHTML = data.map(function(c) {
+      var dotStyle = c.hex === 'tricolor'
+        ? 'background: linear-gradient(to right, #cc0000 33%, #003478 33%, #003478 66%, #ffffff 66%); border:1px solid #ccc;'
+        : c.hex === 'mixed'
+          ? 'background: linear-gradient(135deg,#e74c3c,#9b59b6,#3498db,#2ecc71,#f1c40f);'
+          : 'background:' + escapeHtml(c.hex) + '; border:1px solid rgba(0,0,0,0.12);';
+      return '<tr>' +
+        '<td><span style="display:inline-block;width:24px;height:24px;border-radius:50%;' + dotStyle + '"></span></td>' +
+        '<td>' + escapeHtml(c.name) + '</td>' +
+        '<td><code>' + escapeHtml(c.hex) + '</code></td>' +
+        '<td>' + c.sort_order + '</td>' +
+        '<td><div class="admin-table__actions">' +
+          '<button class="btn btn--outline btn--xs" onclick="editColor(' + c.id + ')">Ред.</button>' +
+          '<button class="btn btn--danger btn--xs" onclick="deleteColor(' + c.id + ', \'' + escapeHtml(c.name) + '\')">Удал.</button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Ошибка</td></tr>'; }
+}
+
+document.getElementById('add-color-btn').addEventListener('click', function() { openColorModal(null); });
+
+function openColorModal(color) {
+  document.getElementById('colorf-id').value = '';
+  document.getElementById('colorf-name').value = '';
+  document.getElementById('colorf-hex').value = '';
+  document.getElementById('colorf-hex-picker').value = '#D42B2B';
+  document.getElementById('colorf-order').value = '0';
+  document.getElementById('color-modal-alert').innerHTML = '';
+  if (color) {
+    document.getElementById('color-modal-title').textContent = 'Редактировать цвет';
+    document.getElementById('colorf-id').value = color.id;
+    document.getElementById('colorf-name').value = color.name;
+    document.getElementById('colorf-hex').value = color.hex;
+    if (color.hex !== 'tricolor' && color.hex !== 'mixed') {
+      document.getElementById('colorf-hex-picker').value = color.hex;
+    }
+    document.getElementById('colorf-order').value = color.sort_order || 0;
+  } else {
+    document.getElementById('color-modal-title').textContent = 'Добавить цвет';
+  }
+  openModal('color-modal');
+}
+
+document.getElementById('colorf-hex-picker').addEventListener('input', function() {
+  document.getElementById('colorf-hex').value = this.value;
+});
+
+function editColor(id) {
+  var c = allColors.find(function(x) { return x.id === id; });
+  if (c) openColorModal(c);
+}
+
+async function deleteColor(id, name) {
+  if (!confirm('Удалить цвет "' + name + '"?')) return;
+  var res = await apiFetch('/admin/api/colors/' + id, { method: 'DELETE' });
+  if (res && res.ok) { showAlert('colors-alert', 'Цвет удалён', 'success'); loadColors(); }
+  else { var d = await res.json(); showAlert('colors-alert', d.error || 'Ошибка', 'error'); }
+}
+
+document.getElementById('color-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('color-form-submit');
+  btn.disabled = true; btn.textContent = 'Сохраняем...';
+  var id = document.getElementById('colorf-id').value;
+  var body = {
+    name: document.getElementById('colorf-name').value.trim(),
+    hex: document.getElementById('colorf-hex').value.trim(),
+    sort_order: parseInt(document.getElementById('colorf-order').value) || 0,
+  };
+  try {
+    var url = id ? '/admin/api/colors/' + id : '/admin/api/colors';
+    var method = id ? 'PUT' : 'POST';
+    var res = await apiFetch(url, { method: method, body: JSON.stringify(body) });
+    var data = await res.json();
+    if (res.ok) { closeModal('color-modal'); showAlert('colors-alert', 'Цвет сохранён', 'success'); await loadColors(); }
+    else { document.getElementById('color-modal-alert').innerHTML = '<div class="admin-alert admin-alert--error">' + escapeHtml(data.error || 'Ошибка') + '</div>'; }
+  } catch(err) { document.getElementById('color-modal-alert').innerHTML = '<div class="admin-alert admin-alert--error">' + escapeHtml(err.message) + '</div>'; }
+  btn.disabled = false; btn.textContent = 'Сохранить';
+});
+
+// --- Высоты ---
+
+async function loadHeights() {
+  var tbody = document.getElementById('heights-tbody');
+  tbody.innerHTML = '<tr><td colspan="3" class="loading">Загрузка...</td></tr>';
+  try {
+    var res = await apiFetch('/admin/api/heights');
+    if (!res || !res.ok) { tbody.innerHTML = '<tr><td colspan="3" class="empty-msg">Ошибка</td></tr>'; return; }
+    var data = await res.json();
+    allHeights = data;
+    if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="empty-msg">Высоты не найдены</td></tr>'; return; }
+    tbody.innerHTML = data.map(function(h) {
+      return '<tr>' +
+        '<td>' + escapeHtml(h.label) + '</td>' +
+        '<td>' + h.sort_order + '</td>' +
+        '<td><div class="admin-table__actions">' +
+          '<button class="btn btn--outline btn--xs" onclick="editHeight(' + h.id + ')">Ред.</button>' +
+          '<button class="btn btn--danger btn--xs" onclick="deleteHeight(' + h.id + ', \'' + escapeHtml(h.label) + '\')">Удал.</button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="empty-msg">Ошибка</td></tr>'; }
+}
+
+document.getElementById('add-height-btn').addEventListener('click', function() { openHeightModal(null); });
+
+function openHeightModal(h) {
+  document.getElementById('hf-id').value = '';
+  document.getElementById('hf-label').value = '';
+  document.getElementById('hf-order').value = '0';
+  document.getElementById('height-modal-alert').innerHTML = '';
+  if (h) {
+    document.getElementById('height-modal-title').textContent = 'Редактировать высоту';
+    document.getElementById('hf-id').value = h.id;
+    document.getElementById('hf-label').value = h.label;
+    document.getElementById('hf-order').value = h.sort_order || 0;
+  } else {
+    document.getElementById('height-modal-title').textContent = 'Добавить высоту';
+  }
+  openModal('height-modal');
+}
+
+function editHeight(id) {
+  var h = allHeights.find(function(x) { return x.id === id; });
+  if (h) openHeightModal(h);
+}
+
+async function deleteHeight(id, label) {
+  if (!confirm('Удалить высоту "' + label + '"?')) return;
+  var res = await apiFetch('/admin/api/heights/' + id, { method: 'DELETE' });
+  if (res && res.ok) { showAlert('heights-alert', 'Высота удалена', 'success'); loadHeights(); }
+  else { var d = await res.json(); showAlert('heights-alert', d.error || 'Ошибка', 'error'); }
+}
+
+document.getElementById('height-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('height-form-submit');
+  btn.disabled = true; btn.textContent = 'Сохраняем...';
+  var id = document.getElementById('hf-id').value;
+  var body = {
+    label: document.getElementById('hf-label').value.trim(),
+    sort_order: parseInt(document.getElementById('hf-order').value) || 0,
+  };
+  try {
+    var url = id ? '/admin/api/heights/' + id : '/admin/api/heights';
+    var method = id ? 'PUT' : 'POST';
+    var res = await apiFetch(url, { method: method, body: JSON.stringify(body) });
+    var data = await res.json();
+    if (res.ok) { closeModal('height-modal'); showAlert('heights-alert', 'Высота сохранена', 'success'); await loadHeights(); }
+    else { document.getElementById('height-modal-alert').innerHTML = '<div class="admin-alert admin-alert--error">' + escapeHtml(data.error || 'Ошибка') + '</div>'; }
+  } catch(err) { document.getElementById('height-modal-alert').innerHTML = '<div class="admin-alert admin-alert--error">' + escapeHtml(err.message) + '</div>'; }
+  btn.disabled = false; btn.textContent = 'Сохранить';
+});
 
 // ── Инициализация ──────────────────────────────────────────
 (async function init() {

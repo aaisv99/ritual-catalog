@@ -232,31 +232,21 @@ router.get('/products', auth, (req, res) => {
 
 router.post('/products', auth, (req, res) => {
   try {
-    const {
-      subcategory_id, number, name, slug,
-      shape, shape_label, color, color_label,
-      size, size_label, price, description, images, is_active,
-    } = req.body;
+    const { subcategory_id, name, slug, height_id, product_colors, price, description, images, is_active } = req.body;
 
-    if (!subcategory_id || !number || !name || !slug) {
-      return res.status(400).json({ error: 'subcategory_id, number, name и slug обязательны' });
+    if (!subcategory_id || !name || !slug) {
+      return res.status(400).json({ error: 'subcategory_id, name и slug обязательны' });
     }
 
     const imagesJson = Array.isArray(images) ? JSON.stringify(images) : (images || '[]');
+    const colorsJson = Array.isArray(product_colors) ? JSON.stringify(product_colors) : (product_colors || '[]');
 
     const result = db.prepare(`
-      INSERT INTO products
-        (subcategory_id, number, name, slug, shape, shape_label, color, color_label, size, size_label, price, description, images, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      subcategory_id, number, name, slug,
-      shape || '', shape_label || '',
-      color || '', color_label || '',
-      size || '', size_label || '',
-      price || 0, description || '',
-      imagesJson,
-      is_active !== undefined ? (is_active ? 1 : 0) : 1
-    );
+      INSERT INTO products (subcategory_id, number, name, slug, price, description, images, is_active, height_id, product_colors)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(subcategory_id, '', name, slug, price || 0, description || '', imagesJson,
+           is_active !== undefined ? (is_active ? 1 : 0) : 1,
+           height_id || null, colorsJson);
 
     const created = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid);
     return res.status(201).json({ ...created, images: JSON.parse(created.images || '[]') });
@@ -267,31 +257,22 @@ router.post('/products', auth, (req, res) => {
 
 router.put('/products/:id', auth, (req, res) => {
   try {
-    const {
-      subcategory_id, number, name, slug,
-      shape, shape_label, color, color_label,
-      size, size_label, price, description, images, is_active,
-    } = req.body;
+    const { subcategory_id, name, slug, height_id, product_colors, price, description, images, is_active } = req.body;
 
     const imagesJson = Array.isArray(images) ? JSON.stringify(images) : (images || '[]');
+    const colorsJson = Array.isArray(product_colors) ? JSON.stringify(product_colors) : (product_colors || '[]');
 
     db.prepare(`
       UPDATE products SET
-        subcategory_id = ?, number = ?, name = ?, slug = ?,
-        shape = ?, shape_label = ?, color = ?, color_label = ?,
-        size = ?, size_label = ?, price = ?, description = ?,
-        images = ?, is_active = ?
+        subcategory_id = ?, name = ?, slug = ?,
+        price = ?, description = ?, images = ?, is_active = ?,
+        height_id = ?, product_colors = ?
       WHERE id = ?
-    `).run(
-      subcategory_id, number, name, slug,
-      shape || '', shape_label || '',
-      color || '', color_label || '',
-      size || '', size_label || '',
-      price || 0, description || '',
-      imagesJson,
-      is_active !== undefined ? (is_active ? 1 : 0) : 1,
-      req.params.id
-    );
+    `).run(subcategory_id, name, slug,
+           price || 0, description || '', imagesJson,
+           is_active !== undefined ? (is_active ? 1 : 0) : 1,
+           height_id || null, colorsJson,
+           req.params.id);
 
     const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
     if (!updated) return res.status(404).json({ error: 'Товар не найден' });
@@ -309,6 +290,76 @@ router.delete('/products/:id', auth, (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
+});
+
+// --- CRUD Colors ---
+
+router.get('/colors', auth, (req, res) => {
+  try {
+    return res.json(db.prepare('SELECT * FROM colors ORDER BY sort_order ASC').all());
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+router.post('/colors', auth, (req, res) => {
+  try {
+    const { name, hex, sort_order } = req.body;
+    if (!name || !hex) return res.status(400).json({ error: 'name и hex обязательны' });
+    const result = db.prepare('INSERT INTO colors (name, hex, sort_order) VALUES (?, ?, ?)').run(name, hex, sort_order || 0);
+    return res.status(201).json(db.prepare('SELECT * FROM colors WHERE id = ?').get(result.lastInsertRowid));
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+router.put('/colors/:id', auth, (req, res) => {
+  try {
+    const { name, hex, sort_order } = req.body;
+    db.prepare('UPDATE colors SET name = ?, hex = ?, sort_order = ? WHERE id = ?').run(name, hex, sort_order || 0, req.params.id);
+    const updated = db.prepare('SELECT * FROM colors WHERE id = ?').get(req.params.id);
+    if (!updated) return res.status(404).json({ error: 'Цвет не найден' });
+    return res.json(updated);
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+router.delete('/colors/:id', auth, (req, res) => {
+  try {
+    const result = db.prepare('DELETE FROM colors WHERE id = ?').run(req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Цвет не найден' });
+    return res.json({ success: true });
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+// --- CRUD Heights ---
+
+router.get('/heights', auth, (req, res) => {
+  try {
+    return res.json(db.prepare('SELECT * FROM heights ORDER BY sort_order ASC').all());
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+router.post('/heights', auth, (req, res) => {
+  try {
+    const { label, sort_order } = req.body;
+    if (!label) return res.status(400).json({ error: 'label обязателен' });
+    const result = db.prepare('INSERT INTO heights (label, sort_order) VALUES (?, ?)').run(label, sort_order || 0);
+    return res.status(201).json(db.prepare('SELECT * FROM heights WHERE id = ?').get(result.lastInsertRowid));
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+router.put('/heights/:id', auth, (req, res) => {
+  try {
+    const { label, sort_order } = req.body;
+    db.prepare('UPDATE heights SET label = ?, sort_order = ? WHERE id = ?').run(label, sort_order || 0, req.params.id);
+    const updated = db.prepare('SELECT * FROM heights WHERE id = ?').get(req.params.id);
+    if (!updated) return res.status(404).json({ error: 'Высота не найдена' });
+    return res.json(updated);
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+});
+
+router.delete('/heights/:id', auth, (req, res) => {
+  try {
+    const result = db.prepare('DELETE FROM heights WHERE id = ?').run(req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Высота не найдена' });
+    return res.json({ success: true });
+  } catch (err) { return res.status(500).json({ error: err.message }); }
 });
 
 // --- Content ---

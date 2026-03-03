@@ -25,27 +25,215 @@
         <% } %>
       </div>
 
-      <!-- Подразделы -->
-      <% if (subcategories.length > 0) { %>
-      <div class="subcategories-grid">
-        <% for (const sub of subcategories) { %>
-        <a href="/catalog/<%= category.slug %>/<%= sub.slug %>" class="subcategory-card">
-          <div class="subcategory-card__name"><%= sub.name %></div>
-          <% if (sub.description) { %>
-          <div class="subcategory-card__desc"><%= sub.description %></div>
-          <% } %>
-          <span class="subcategory-card__arrow">→</span>
-        </a>
-        <% } %>
+      <!-- Оптовое уведомление -->
+      <div class="wholesale-notice">
+        <span class="wholesale-notice__icon">ℹ</span>
+        Цены указаны для оптовых покупателей. О розничных ценах уточняйте отдельно.
       </div>
-      <% } else { %>
-      <p class="empty-state">Подразделы не найдены</p>
-      <% } %>
 
-      <!-- Notice -->
-      <div class="notice-block notice-block--sm">
-        <span class="notice-block__icon">ℹ</span>
-        <p><%= content['site.notice'] || '' %></p>
+      <!-- Кнопка фильтров (только мобилка) -->
+      <button class="filters-toggle-btn" id="filters-toggle-btn" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 5h14M6 10h8M9 15h2" stroke-linecap="round"/>
+        </svg>
+        Фильтры
+        <% const activeFiltersCount = (shapeFilter ? 1 : 0) + (colorFilter ? 1 : 0) + (heightFilter ? 1 : 0); %>
+        <% if (activeFiltersCount > 0) { %>
+        <span class="filters-toggle-btn__badge"><%= activeFiltersCount %></span>
+        <% } %>
+      </button>
+
+      <!-- Фильтры оверлей (мобилка) -->
+      <div class="filters-overlay" id="filters-overlay"></div>
+
+      <div class="catalog-layout">
+
+        <!-- Боковая панель фильтров -->
+        <aside class="filters-sidebar" id="filters-sidebar">
+          <div class="filters-sidebar__header">
+            <span class="filters-sidebar__title">Фильтры</span>
+            <button class="filters-sidebar__close" id="filters-close-btn" aria-label="Закрыть">&times;</button>
+          </div>
+
+          <% const baseUrl = '/catalog/' + category.slug; %>
+
+          <% if (shapes.length > 0) { %>
+          <div class="filter-section">
+            <div class="filter-section__title">Форма</div>
+            <div class="filter-options">
+              <a href="<%= baseUrl %><%= colorFilter ? '?color=' + colorFilter : '' %><%= heightFilter ? (colorFilter ? '&' : '?') + 'height=' + heightFilter : '' %>"
+                 class="filter-option<%= !shapeFilter ? ' is-active' : '' %>">Все</a>
+              <% for (const shape of shapes) { %>
+              <%
+                let shapeUrl = baseUrl + '?shape=' + shape.id;
+                if (colorFilter) shapeUrl += '&color=' + colorFilter;
+                if (heightFilter) shapeUrl += '&height=' + heightFilter;
+              %>
+              <a href="<%= shapeUrl %>" class="filter-option<%= shapeFilter === shape.id ? ' is-active' : '' %>">
+                <%= shape.name %>
+              </a>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+
+          <% if (colors.length > 0) { %>
+          <div class="filter-section">
+            <div class="filter-section__title">Цвет</div>
+            <div class="filter-options filter-options--colors">
+              <%
+                let noColorUrl = baseUrl;
+                const noColorParams = [];
+                if (shapeFilter) noColorParams.push('shape=' + shapeFilter);
+                if (heightFilter) noColorParams.push('height=' + heightFilter);
+                if (noColorParams.length) noColorUrl += '?' + noColorParams.join('&');
+              %>
+              <a href="<%= noColorUrl %>" class="filter-color-dot<%= !colorFilter ? ' is-active' : '' %>" title="Все цвета" style="background: linear-gradient(135deg,#e74c3c,#3498db,#2ecc71,#f1c40f);">
+                <span class="filter-color-dot__check">✓</span>
+              </a>
+              <% for (const color of colors) { %>
+              <%
+                let colorUrl = baseUrl + '?color=' + color.id;
+                if (shapeFilter) colorUrl += '&shape=' + shapeFilter;
+                if (heightFilter) colorUrl += '&height=' + heightFilter;
+                let colorStyle = '';
+                if (color.hex === 'tricolor') {
+                  colorStyle = 'background: linear-gradient(to right, #cc0000 33%, #003478 33%, #003478 66%, #ffffff 66%);';
+                } else if (color.hex === 'mixed') {
+                  colorStyle = 'background: linear-gradient(135deg,#e74c3c,#9b59b6,#3498db,#2ecc71,#f1c40f);';
+                } else {
+                  colorStyle = 'background:' + color.hex + ';';
+                }
+              %>
+              <a href="<%= colorUrl %>" class="filter-color-dot<%= colorFilter === color.id ? ' is-active' : '' %>"
+                 style="<%= colorStyle %>" title="<%= color.name %>">
+                <span class="filter-color-dot__check">✓</span>
+              </a>
+              <% } %>
+            </div>
+            <% if (colorFilter) { %>
+            <%
+              const activeColor = colors.find(c => c.id === colorFilter);
+            %>
+            <div class="filter-active-color"><%= activeColor ? activeColor.name : '' %></div>
+            <% } %>
+          </div>
+          <% } %>
+
+          <% if (heights.length > 0) { %>
+          <div class="filter-section">
+            <div class="filter-section__title">Высота</div>
+            <div class="filter-options">
+              <%
+                let noHeightUrl = baseUrl;
+                const noHeightParams = [];
+                if (shapeFilter) noHeightParams.push('shape=' + shapeFilter);
+                if (colorFilter) noHeightParams.push('color=' + colorFilter);
+                if (noHeightParams.length) noHeightUrl += '?' + noHeightParams.join('&');
+              %>
+              <a href="<%= noHeightUrl %>" class="filter-option<%= !heightFilter ? ' is-active' : '' %>">Все</a>
+              <% for (const h of heights) { %>
+              <%
+                let heightUrl = baseUrl + '?height=' + h.id;
+                if (shapeFilter) heightUrl += '&shape=' + shapeFilter;
+                if (colorFilter) heightUrl += '&color=' + colorFilter;
+              %>
+              <a href="<%= heightUrl %>" class="filter-option<%= heightFilter === h.id ? ' is-active' : '' %>">
+                <%= h.label %>
+              </a>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+
+          <% if (shapeFilter || colorFilter || heightFilter) { %>
+          <a href="<%= baseUrl %>" class="filter-reset-btn">Сбросить фильтры</a>
+          <% } %>
+        </aside>
+
+        <!-- Основной контент -->
+        <div class="catalog-main">
+
+          <!-- Счётчик -->
+          <div class="catalog__count">
+            Найдено: <strong><%= total %></strong> товаров
+            <% if (total > 0 && pages > 1) { %> (стр. <%= page %> из <%= pages %>)<% } %>
+          </div>
+
+          <!-- Сетка товаров -->
+          <% if (products.length > 0) { %>
+          <div class="products-grid">
+            <% const PLACEHOLDER = "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none'%3E%3Crect x='3' y='3' width='50' height='50' rx='8' stroke='%23C8CDD4' stroke-width='1.5' fill='none'/%3E%3Cpath d='M14 42 L22 28 L29 36 L35 24 L44 42 H14Z' fill='%23C8CDD4' opacity='0.55'/%3E%3Ccircle cx='36' cy='19' r='5' fill='%23C8CDD4' opacity='0.55'/%3E%3C/svg%3E"; %>
+            <% for (const product of products) { %>
+            <a href="/catalog/<%= category.slug %>/<%= product.subcategory_slug %>/<%= product.slug %>" class="product-card">
+              <div class="product-card__image">
+                <% if (product.images && product.images.length > 0) { %>
+                <img src="<%= product.images[0] %>" alt="<%= product.name %>" loading="lazy" onerror="this.src='<%= PLACEHOLDER %>'">
+                <% } else { %>
+                <div class="product-card__placeholder">
+                  <img src="<%= PLACEHOLDER %>" alt="<%= product.name %>">
+                </div>
+                <% } %>
+              </div>
+              <div class="product-card__body">
+                <div class="product-card__name"><%= product.name %></div>
+                <% if (product.colorObjects && product.colorObjects.length > 0) { %>
+                <div class="product-card__colors">
+                  <% for (const c of product.colorObjects) { %>
+                  <%
+                    let dotStyle = '';
+                    if (c.hex === 'tricolor') {
+                      dotStyle = 'background: linear-gradient(to right, #cc0000 33%, #003478 33%, #003478 66%, #ffffff 66%);';
+                    } else if (c.hex === 'mixed') {
+                      dotStyle = 'background: linear-gradient(135deg,#e74c3c,#9b59b6,#3498db,#2ecc71,#f1c40f);';
+                    } else {
+                      dotStyle = 'background:' + c.hex + ';';
+                    }
+                  %>
+                  <span class="color-dot" style="<%= dotStyle %>" title="<%= c.name %>"></span>
+                  <% } %>
+                </div>
+                <% } %>
+                <div class="product-card__footer">
+                  <span class="product-card__price"><%= product.price.toLocaleString('ru-RU') %>&nbsp;₽</span>
+                  <span class="product-card__cta">Подробнее →</span>
+                </div>
+              </div>
+            </a>
+            <% } %>
+          </div>
+
+          <!-- Пагинация -->
+          <% if (pages > 1) { %>
+          <nav class="catalog-pagination">
+            <% for (let i = 1; i <= pages; i++) { %>
+            <%
+              let pageUrl = baseUrl + '?page=' + i;
+              if (shapeFilter) pageUrl += '&shape=' + shapeFilter;
+              if (colorFilter) pageUrl += '&color=' + colorFilter;
+              if (heightFilter) pageUrl += '&height=' + heightFilter;
+            %>
+            <a href="<%= pageUrl %>" class="catalog-pagination__btn<%= i === page ? ' is-active' : '' %>"><%= i %></a>
+            <% } %>
+          </nav>
+          <% } %>
+
+          <% } else { %>
+          <div class="products-empty">
+            <div class="products-empty__icon">🔍</div>
+            <div class="products-empty__title">Товары не найдены</div>
+            <div class="products-empty__text">Попробуйте изменить параметры фильтра</div>
+            <a href="<%= baseUrl %>" class="btn btn--outline" style="margin-top:16px">Сбросить фильтры</a>
+          </div>
+          <% } %>
+
+          <!-- Уведомление -->
+          <div class="notice-block catalog-notice">
+            <span class="notice-block__icon">ℹ</span>
+            <p><%= content['site.notice'] || '' %></p>
+          </div>
+
+        </div>
       </div>
 
     </div>
@@ -54,5 +242,30 @@
   <%- include('_footer') %>
 
   <script src="/js/site.js"></script>
+  <script>
+    // Мобильный фильтр
+    var toggleBtn = document.getElementById('filters-toggle-btn');
+    var sidebar = document.getElementById('filters-sidebar');
+    var overlay = document.getElementById('filters-overlay');
+    var closeBtn = document.getElementById('filters-close-btn');
+
+    function openFilters() {
+      sidebar.classList.add('is-open');
+      overlay.classList.add('is-visible');
+      document.body.style.overflow = 'hidden';
+      toggleBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeFilters() {
+      sidebar.classList.remove('is-open');
+      overlay.classList.remove('is-visible');
+      document.body.style.overflow = '';
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openFilters);
+    if (closeBtn) closeBtn.addEventListener('click', closeFilters);
+    if (overlay) overlay.addEventListener('click', closeFilters);
+  </script>
 </body>
 </html>

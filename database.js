@@ -15,6 +15,19 @@ db.pragma('foreign_keys = ON');
 // --- Создание таблиц ---
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS colors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    hex TEXT NOT NULL DEFAULT '#CCCCCC',
+    sort_order INTEGER DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS heights (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    label TEXT NOT NULL,
+    sort_order INTEGER DEFAULT 0
+  );
+
   CREATE TABLE IF NOT EXISTS categories (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -64,6 +77,10 @@ db.exec(`
     password_hash TEXT NOT NULL
   );
 `);
+
+// --- Добавляем новые колонки в products (если не существуют) ---
+try { db.exec('ALTER TABLE products ADD COLUMN height_id INTEGER REFERENCES heights(id)'); } catch(e) {}
+try { db.exec('ALTER TABLE products ADD COLUMN product_colors TEXT DEFAULT "[]"'); } catch(e) {}
 
 // --- Seed: проверяем, есть ли уже данные ---
 
@@ -288,6 +305,54 @@ if (categoriesCount.cnt === 0) {
   console.log('Database seeded successfully.');
 } else {
   console.log('Database already has data, skipping seed.');
+}
+
+// --- Seed: Цвета ---
+const colorsCount = db.prepare('SELECT COUNT(*) as cnt FROM colors').get();
+if (colorsCount.cnt === 0) {
+  const insertColor = db.prepare('INSERT INTO colors (name, hex, sort_order) VALUES (?, ?, ?)');
+  const colorsData = [
+    ['Белый',    '#F5F5F5', 1],
+    ['Бежевый',  '#E8D5B0', 2],
+    ['Жёлтый',   '#F5C518', 3],
+    ['Оранжевый','#F5832A', 4],
+    ['Красный',  '#D42B2B', 5],
+    ['Розовый',  '#F07090', 6],
+    ['Фиолетовый','#8B3A8B',7],
+    ['Синий',    '#1B4B9F', 8],
+    ['Голубой',  '#5BA4CF', 9],
+    ['Зелёный',  '#2E7D32', 10],
+    ['Коричневый','#7B4226',11],
+    ['Серый',    '#8C8C8C', 12],
+    ['Триколор', 'tricolor',13],
+    ['Бордовый', '#7D1C2A', 14],
+    ['Смешанный','mixed',   15],
+  ];
+  const insertColorsTx = db.transaction(() => {
+    for (const [name, hex, sort_order] of colorsData) {
+      insertColor.run(name, hex, sort_order);
+    }
+  });
+  insertColorsTx();
+}
+
+// --- Seed: Высоты ---
+const heightsCount = db.prepare('SELECT COUNT(*) as cnt FROM heights').get();
+if (heightsCount.cnt === 0) {
+  const insertHeight = db.prepare('INSERT INTO heights (label, sort_order) VALUES (?, ?)');
+  const heightsData = [
+    ['60 см',  1],
+    ['80 см',  2],
+    ['100 см', 3],
+    ['120 см', 4],
+    ['150 см', 5],
+  ];
+  const insertHeightsTx = db.transaction(() => {
+    for (const [label, sort_order] of heightsData) {
+      insertHeight.run(label, sort_order);
+    }
+  });
+  insertHeightsTx();
 }
 
 module.exports = db;
