@@ -160,6 +160,54 @@ app.get('/catalog/:cat', (req, res) => {
       p.colorObjects = (p.product_colors || []).map(id => colorMap[id]).filter(Boolean);
     });
 
+    // --- Счётчики для каждой опции фильтра ---
+
+    // Счётчики форм (без учёта shapeFilter, с учётом color+height)
+    const scColorJoin = colorFilter ? 'JOIN json_each(p.product_colors) jc ON jc.value = ?' : '';
+    const scColorParam = colorFilter ? [colorFilter] : [];
+    const scConds = ['s.category_id = ?', 'p.is_active = 1'];
+    const scParams = [category.id];
+    if (heightFilter) { scConds.push('p.height_id = ?'); scParams.push(heightFilter); }
+    const shapeCountRows = db.prepare(
+      `SELECT p.subcategory_id as id, COUNT(DISTINCT p.id) as cnt
+       FROM products p JOIN subcategories s ON p.subcategory_id = s.id
+       ${scColorJoin} WHERE ${scConds.join(' AND ')} GROUP BY p.subcategory_id`
+    ).all(...scColorParam, ...scParams);
+    const shapeCounts = {};
+    shapeCountRows.forEach(r => { shapeCounts[r.id] = r.cnt; });
+
+    // Счётчики высот (без учёта heightFilter, с учётом shape+color)
+    const hcColorJoin = colorFilter ? 'JOIN json_each(p.product_colors) jc ON jc.value = ?' : '';
+    const hcColorParam = colorFilter ? [colorFilter] : [];
+    const hcConds = ['s.category_id = ?', 'p.is_active = 1', 'p.height_id IS NOT NULL'];
+    const hcParams = [category.id];
+    if (shapeFilter) { hcConds.push('p.subcategory_id = ?'); hcParams.push(shapeFilter); }
+    const heightCountRows = db.prepare(
+      `SELECT p.height_id as id, COUNT(DISTINCT p.id) as cnt
+       FROM products p JOIN subcategories s ON p.subcategory_id = s.id
+       ${hcColorJoin} WHERE ${hcConds.join(' AND ')} GROUP BY p.height_id`
+    ).all(...hcColorParam, ...hcParams);
+    const heightCounts = {};
+    heightCountRows.forEach(r => { heightCounts[r.id] = r.cnt; });
+
+    // Счётчики цветов (без учёта colorFilter, с учётом shape+height)
+    const ccConds = ['s.category_id = ?', 'p.is_active = 1'];
+    const ccParams = [category.id];
+    if (shapeFilter) { ccConds.push('p.subcategory_id = ?'); ccParams.push(shapeFilter); }
+    if (heightFilter) { ccConds.push('p.height_id = ?'); ccParams.push(heightFilter); }
+    const colorCountRows = db.prepare(
+      `SELECT jc.value as id, COUNT(DISTINCT p.id) as cnt
+       FROM products p JOIN subcategories s ON p.subcategory_id = s.id
+       JOIN json_each(p.product_colors) jc WHERE ${ccConds.join(' AND ')} GROUP BY jc.value`
+    ).all(...ccParams);
+    const colorCounts = {};
+    colorCountRows.forEach(r => { colorCounts[r.id] = r.cnt; });
+
+    // Найти названия выбранных фильтров для чипов
+    const activeShape = shapeFilter ? shapes.find(s => s.id === shapeFilter) : null;
+    const activeColor = colorFilter ? colors.find(c => c.id === colorFilter) : null;
+    const activeHeight = heightFilter ? heights.find(h => h.id === heightFilter) : null;
+
     res.render('category', {
       title: category.name + ' | ' + (content['site.name'] || 'Ритуальные товары'),
       description: content['meta.description'] || '',
@@ -177,6 +225,12 @@ app.get('/catalog/:cat', (req, res) => {
       shapeFilter,
       colorFilter,
       heightFilter,
+      shapeCounts,
+      heightCounts,
+      colorCounts,
+      activeShape,
+      activeColor,
+      activeHeight,
       activePage: category.slug,
       catalogPage: true,
     });
