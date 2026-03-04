@@ -24,59 +24,70 @@
       <!-- Основной блок товара -->
       <div class="product-detail">
 
-        <!-- Галерея -->
+        <!-- ═══ Левая колонка: галерея ═══ -->
         <div class="product-detail__gallery">
           <% const PLACEHOLDER = "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none'%3E%3Crect x='3' y='3' width='50' height='50' rx='8' stroke='%23C8CDD4' stroke-width='1.5' fill='none'/%3E%3Cpath d='M14 42 L22 28 L29 36 L35 24 L44 42 H14Z' fill='%23C8CDD4' opacity='0.55'/%3E%3Ccircle cx='36' cy='19' r='5' fill='%23C8CDD4' opacity='0.55'/%3E%3C/svg%3E"; %>
-          <% if (product.images && product.images.length > 0) { %>
-          <div class="product-gallery">
-            <div class="product-gallery__main">
+          <% const firstImg = (product.images && product.images.length > 0) ? product.images[0] : null; %>
+
+          <div class="pdp-img-card">
+            <div class="pdp-img-wrap">
+              <!-- Blur-fill фон -->
+              <% if (firstImg) { %>
+              <div class="pdp-img-bg" id="pdp-img-bg" style="background-image:url('<%= firstImg %>')"></div>
+              <% } %>
+              <!-- Основное фото -->
               <img
-                src="<%= product.images[0] %>"
+                src="<%= firstImg || PLACEHOLDER %>"
                 alt="<%= product.name %>"
-                class="product-gallery__main-img"
+                class="pdp-img-main<%= firstImg ? '' : ' pdp-img-main--placeholder' %>"
                 id="gallery-main"
                 onerror="this.src='<%= PLACEHOLDER %>'"
               >
             </div>
-            <% if (product.images.length > 1) { %>
-            <div class="product-gallery__thumbs">
+
+            <!-- Миниатюры -->
+            <% if (product.images && product.images.length > 1) { %>
+            <div class="pdp-thumbs" id="pdp-thumbs">
               <% for (let i = 0; i < product.images.length; i++) { %>
               <img
                 src="<%= product.images[i] %>"
                 alt="<%= product.name %> фото <%= i + 1 %>"
-                class="product-gallery__thumb<%= i === 0 ? ' is-active' : '' %>"
-                data-index="<%= i %>"
+                class="pdp-thumb<%= i === 0 ? ' is-active' : '' %>"
                 data-src="<%= product.images[i] %>"
                 loading="lazy"
-                onerror="this.src='<%= PLACEHOLDER %>'"
+                onerror="this.style.display='none'"
               >
               <% } %>
             </div>
             <% } %>
           </div>
-          <% } else { %>
-          <div class="product-gallery">
-            <div class="product-gallery__main">
-              <img
-                src="<%= PLACEHOLDER %>"
-                alt="<%= product.name %>"
-                class="product-gallery__main-img product-gallery__main-img--placeholder"
-              >
-            </div>
-          </div>
-          <% } %>
         </div>
 
-        <!-- Информация о товаре -->
+        <!-- ═══ Правая колонка: информация ═══ -->
         <div class="product-detail__info">
-          <h1 class="product-detail__name"><%= product.name %></h1>
-          <div class="product-detail__price"><%= product.price.toLocaleString('ru-RU') %>&nbsp;₽</div>
+
+          <!-- Название и артикул -->
+          <h1 class="pdp-name"><%= product.name %></h1>
+          <% if (product.number) { %>
+          <div class="pdp-sku">Арт.&nbsp;<%= product.number %></div>
+          <% } %>
+
+          <!-- Цена -->
+          <div class="pdp-price"><%= product.price.toLocaleString('ru-RU') %>&nbsp;₽</div>
+
+          <!-- Оптовая пометка -->
+          <div class="pdp-wholesale-note">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0">
+              <circle cx="10" cy="10" r="8"/><path d="M10 9v5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="0.75" fill="currentColor" stroke="none"/>
+            </svg>
+            Цены указаны для оптовых покупателей. О розничных уточняйте отдельно.
+          </div>
 
           <!-- Цвета -->
           <% if (product.colorObjects && product.colorObjects.length > 0) { %>
-          <div class="product-detail__colors">
-            <span class="product-detail__colors-label">Цвет:</span>
-            <div class="product-detail__colors-list">
+          <div class="pdp-colors">
+            <span class="pdp-colors__label">Цвет:</span>
+            <div class="pdp-colors__list">
               <% for (const c of product.colorObjects) { %>
               <%
                 let dotStyle = '';
@@ -89,40 +100,41 @@
                 }
               %>
               <span class="color-dot color-dot--lg" style="<%= dotStyle %>" title="<%= c.name %>"></span>
-              <span class="product-detail__color-name"><%= c.name %></span>
+              <span class="pdp-colors__name"><%= c.name %></span>
               <% } %>
             </div>
           </div>
           <% } %>
 
           <!-- Характеристики -->
-          <table class="product-detail__specs">
+          <table class="pdp-specs">
             <tbody>
               <tr>
-                <td class="product-detail__spec-label">Форма</td>
-                <td class="product-detail__spec-value"><%= subcategory.name %></td>
+                <td class="pdp-specs__label">Форма</td>
+                <td class="pdp-specs__value"><%= subcategory.name %></td>
               </tr>
               <% if (heightObj) { %>
               <tr>
-                <td class="product-detail__spec-label">Высота</td>
-                <td class="product-detail__spec-value"><%= heightObj.label %></td>
+                <td class="pdp-specs__label">Высота</td>
+                <td class="pdp-specs__value"><%= heightObj.label %></td>
               </tr>
               <% } %>
               <tr>
-                <td class="product-detail__spec-label">Раздел</td>
-                <td class="product-detail__spec-value"><%= category.name %></td>
+                <td class="pdp-specs__label">Раздел</td>
+                <td class="pdp-specs__value"><%= category.name %></td>
               </tr>
             </tbody>
           </table>
 
+          <!-- Описание -->
           <% if (product.description) { %>
-          <div class="product-detail__description">
+          <div class="pdp-description">
             <p><%= product.description %></p>
           </div>
           <% } %>
 
           <!-- CTA -->
-          <div class="product-detail__cta">
+          <div class="pdp-cta">
             <a href="<%= content['contacts.phoneHref'] || 'tel:+70000000000' %>" class="btn btn--primary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -142,20 +154,17 @@
             </a>
           </div>
 
-          <!-- Оптовая цена -->
-          <div class="wholesale-notice wholesale-notice--sm">
-            <span class="wholesale-notice__icon">ℹ</span>
-            Цена указана для оптовых покупателей. О розничных ценах уточняйте отдельно.
-          </div>
-
           <!-- Уведомление -->
+          <% if (content['site.notice']) { %>
           <div class="notice-block notice-block--sm">
             <span class="notice-block__icon">ℹ</span>
-            <p><%= content['site.notice'] || '' %></p>
+            <p><%= content['site.notice'] %></p>
           </div>
-        </div>
+          <% } %>
 
-      </div>
+        </div><!-- /product-detail__info -->
+
+      </div><!-- /product-detail -->
 
       <!-- Похожие товары -->
       <% if (similarProducts && similarProducts.length > 0) { %>
@@ -184,10 +193,10 @@
                 <% } %>
               </div>
               <div class="product-card__body">
-                <div class="product-card__number"><%= sp.number %></div>
+                <% if (sp.number) { %><div class="product-card__number"><%= sp.number %></div><% } %>
                 <div class="product-card__name"><%= sp.name %></div>
                 <div class="product-card__attrs">
-                  <span class="product-card__attr"><%= sp.size_label || sp.size %></span>
+                  <span class="product-card__attr"><%= sp.size_label || sp.size || '' %></span>
                 </div>
                 <div class="product-card__price"><%= sp.price.toLocaleString('ru-RU') %>&nbsp;₽</div>
               </div>
@@ -206,14 +215,17 @@
 
   <script src="/js/site.js"></script>
   <script>
-    // Переключение фото в галерее
     document.addEventListener('DOMContentLoaded', function() {
-      const thumbs = document.querySelectorAll('.product-gallery__thumb');
-      const mainImg = document.getElementById('gallery-main');
+      var thumbs = document.querySelectorAll('.pdp-thumb');
+      var mainImg = document.getElementById('gallery-main');
+      var bgEl = document.getElementById('pdp-img-bg');
+
       if (thumbs.length && mainImg) {
         thumbs.forEach(function(thumb) {
           thumb.addEventListener('click', function() {
-            mainImg.src = this.dataset.src;
+            var src = this.dataset.src;
+            mainImg.src = src;
+            if (bgEl) bgEl.style.backgroundImage = "url('" + src + "')";
             thumbs.forEach(function(t) { t.classList.remove('is-active'); });
             this.classList.add('is-active');
           });

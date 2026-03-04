@@ -280,6 +280,7 @@ function translitSlug(str) {
 function openProductModal(product) {
   productImages = [];
   document.getElementById('pf-id').value = '';
+  document.getElementById('pf-number').value = '';
   document.getElementById('pf-name').value = '';
   document.getElementById('pf-slug').value = '';
   document.getElementById('pf-subcategory').value = '';
@@ -343,6 +344,7 @@ function openProductModal(product) {
   if (product) {
     document.getElementById('product-modal-title').textContent = 'Редактировать товар';
     document.getElementById('pf-id').value = product.id;
+    document.getElementById('pf-number').value = product.number || '';
     document.getElementById('pf-name').value = product.name || '';
     document.getElementById('pf-slug').value = product.slug || '';
     document.getElementById('pf-subcategory').value = product.subcategory_id || '';
@@ -406,6 +408,7 @@ document.getElementById('product-form').addEventListener('submit', async functio
   var heightVal = document.getElementById('pf-height').value;
 
   var body = {
+    number: document.getElementById('pf-number').value.trim(),
     subcategory_id: parseInt(document.getElementById('pf-subcategory').value),
     name: document.getElementById('pf-name').value.trim(),
     slug: document.getElementById('pf-slug').value.trim(),

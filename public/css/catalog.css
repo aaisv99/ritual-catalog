@@ -490,7 +490,211 @@
 /* ── Примечание ──────────────────────────────────────────── */
 .catalog-notice { margin-bottom: 48px; }
 
-/* ── Цвета на странице товара ────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   PDP — СТРАНИЦА ТОВАРА
+═══════════════════════════════════════════════════════════ */
+
+/* ── Двухколоночный layout ───────────────────────────────── */
+.product-detail {
+  display: grid;
+  grid-template-columns: 55% 1fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 56px;
+}
+
+/* Левая колонка sticky */
+.product-detail__gallery {
+  position: sticky;
+  top: 80px;
+}
+
+/* ── Карточка изображения ────────────────────────────────── */
+.pdp-img-card {
+  background: #F4F3F1;
+  border: 1px solid #E3E0DB;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.07);
+}
+
+/* Контейнер фото с blur-fill фоном */
+.pdp-img-wrap {
+  position: relative;
+  height: 560px;
+  overflow: hidden;
+  background: #F4F3F1;
+}
+
+/* Blur-fill фон — размытая копия фото */
+.pdp-img-bg {
+  position: absolute;
+  inset: -10px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(22px) brightness(0.88) saturate(0.9);
+}
+
+/* Основное фото поверх blur */
+.pdp-img-main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.pdp-img-main--placeholder {
+  opacity: 0.35;
+  padding: 20%;
+}
+
+/* ── Миниатюры ───────────────────────────────────────────── */
+.pdp-thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  background: #F4F3F1;
+  border-top: 1px solid #E3E0DB;
+  scrollbar-width: thin;
+}
+
+.pdp-thumb {
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s, opacity 0.2s;
+  background: #fff;
+  opacity: 0.72;
+}
+
+.pdp-thumb:hover { opacity: 1; }
+
+.pdp-thumb.is-active {
+  border-color: var(--color-accent);
+  opacity: 1;
+}
+
+/* ── Правая колонка — информация ─────────────────────────── */
+.product-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Название */
+.pdp-name {
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1.25;
+  margin: 0 0 6px;
+}
+
+/* Артикул */
+.pdp-sku {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+}
+
+/* Цена */
+.pdp-price {
+  font-family: var(--font-heading);
+  font-size: clamp(1.625rem, 2.8vw, 2.125rem);
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+/* Оптовая пометка — нейтральная */
+.pdp-wholesale-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: #6B6055;
+  background: #F0EDE8;
+  border: 1px solid #DDD9D4;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+/* Цвета */
+.pdp-colors {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.pdp-colors__label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  padding-top: 3px;
+}
+.pdp-colors__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.pdp-colors__name {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+/* Таблица характеристик */
+.pdp-specs {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+}
+.pdp-specs td {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+.pdp-specs tr:last-child td { border-bottom: none; }
+.pdp-specs__label {
+  color: var(--color-text-secondary);
+  width: 38%;
+  padding-right: 12px;
+}
+.pdp-specs__value {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Описание */
+.pdp-description {
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.pdp-description p { margin: 0; }
+
+/* CTA кнопки */
+.pdp-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* ── Устаревшие стили цветов (оставляем для совместимости) ── */
 .product-detail__colors {
   display: flex;
   align-items: flex-start;
@@ -502,23 +706,35 @@
 .product-detail__colors-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .product-detail__color-name { font-size: 0.8125rem; color: var(--color-text-secondary); }
 
-/* ── Оптовая пометка на странице товара ──────────────────── */
+/* ── Оптовая пометка (старый стиль, не используется) ─────── */
 .wholesale-notice-sm {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8125rem;
-  color: #7B6200;
-  background: #FFF8DC;
-  border: 1px solid #FFD966;
-  border-radius: 10px;
-  padding: 8px 14px;
-  margin-top: 12px;
+  display: none;
 }
 
 /* ═══════════════════════════════════════════════════════════
    АДАПТИВ
 ═══════════════════════════════════════════════════════════ */
+/* ── PDP адаптив ─────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .product-detail {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .product-detail__gallery {
+    position: static;
+  }
+  .pdp-img-wrap {
+    height: 340px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pdp-img-wrap { height: 260px; }
+  .pdp-cta { flex-direction: column; }
+  .pdp-cta .btn { width: 100%; justify-content: center; }
+}
+
+/* ── Каталог адаптив ─────────────────────────────────────── */
 @media (max-width: 960px) {
   .catalog-layout {
     grid-template-columns: 1fr;

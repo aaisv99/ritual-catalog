@@ -232,7 +232,7 @@ router.get('/products', auth, (req, res) => {
 
 router.post('/products', auth, (req, res) => {
   try {
-    const { subcategory_id, name, slug, height_id, product_colors, price, description, images, is_active } = req.body;
+    const { number, subcategory_id, name, slug, height_id, product_colors, price, description, images, is_active } = req.body;
 
     if (!subcategory_id || !name || !slug) {
       return res.status(400).json({ error: 'subcategory_id, name и slug обязательны' });
@@ -244,7 +244,7 @@ router.post('/products', auth, (req, res) => {
     const result = db.prepare(`
       INSERT INTO products (subcategory_id, number, name, slug, price, description, images, is_active, height_id, product_colors)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(subcategory_id, '', name, slug, price || 0, description || '', imagesJson,
+    `).run(subcategory_id, number || '', name, slug, price || 0, description || '', imagesJson,
            is_active !== undefined ? (is_active ? 1 : 0) : 1,
            height_id || null, colorsJson);
 
@@ -257,18 +257,18 @@ router.post('/products', auth, (req, res) => {
 
 router.put('/products/:id', auth, (req, res) => {
   try {
-    const { subcategory_id, name, slug, height_id, product_colors, price, description, images, is_active } = req.body;
+    const { number, subcategory_id, name, slug, height_id, product_colors, price, description, images, is_active } = req.body;
 
     const imagesJson = Array.isArray(images) ? JSON.stringify(images) : (images || '[]');
     const colorsJson = Array.isArray(product_colors) ? JSON.stringify(product_colors) : (product_colors || '[]');
 
     db.prepare(`
       UPDATE products SET
-        subcategory_id = ?, name = ?, slug = ?,
+        subcategory_id = ?, number = ?, name = ?, slug = ?,
         price = ?, description = ?, images = ?, is_active = ?,
         height_id = ?, product_colors = ?
       WHERE id = ?
-    `).run(subcategory_id, name, slug,
+    `).run(subcategory_id, number || '', name, slug,
            price || 0, description || '', imagesJson,
            is_active !== undefined ? (is_active ? 1 : 0) : 1,
            height_id || null, colorsJson,
