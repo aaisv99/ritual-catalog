@@ -228,9 +228,10 @@
             <a href="/catalog/<%= category.slug %>/<%= product.subcategory_slug %>/<%= product.slug %>" class="product-card">
               <div class="product-card__image">
                 <% if (product.images && product.images.length > 0) { %>
-                <img src="<%= product.images[0] %>" alt="<%= product.name %>" loading="lazy" onerror="this.src='<%= PH %>'">
+                <img src="<%= product.images[0] %>" class="pc-bg" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <img src="<%= product.images[0] %>" class="pc-main" alt="<%= product.name %>" loading="lazy" onerror="this.src='<%= PH %>';this.classList.add('pc-main--ph')">
                 <% } else { %>
-                <div class="product-card__placeholder"><img src="<%= PH %>" alt=""></div>
+                <img src="<%= PH %>" class="pc-main pc-main--ph" alt="">
                 <% } %>
               </div>
               <div class="product-card__body">

@@ -369,25 +369,46 @@
 }
 
 .product-card__image {
+  position: relative;
   aspect-ratio: 4/3;
   overflow: hidden;
-  background: var(--color-bg);
+  background: #ECEAE8;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
-.product-card__image img {
+
+/* Слой 1: blur-fill фон (та же картинка, cover + blur) */
+.product-card__image .pc-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform .35s ease;
+  filter: blur(14px) brightness(0.76) saturate(0.8);
+  transform: scale(1.14); /* выезжает за края чтобы не было белых полос от blur */
+  display: block;
+  pointer-events: none;
 }
-.product-card:hover .product-card__image img { transform: scale(1.05); }
 
-.product-card__placeholder {
+/* Слой 2: основное фото (contain — всегда целиком) */
+.product-card__image .pc-main {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(140deg,#ECEAE8 0%,#E2E0DC 100%);
+  object-fit: contain;
+  display: block;
+  transition: transform .35s ease;
+}
+.product-card:hover .product-card__image .pc-main {
+  transform: scale(1.04);
+}
+
+/* Плейсхолдер когда фото нет или не загрузилось */
+.product-card__image .pc-main--ph {
+  object-fit: contain;
+  opacity: 0.22;
+  padding: 20%;
+  transition: none;
 }
 
 .product-card__body {
